@@ -1,0 +1,22 @@
+import random
+
+def binary_to_decimal(binary_str, index=0, total=0):
+    # Base case: processed all digits
+    if index == len(binary_str):
+        return total
+    
+    # Get current bit and its positional value
+    bit = int(binary_str[index])
+    power = len(binary_str) - 1 - index  # rightmost digit has power 0
+    
+    # Add this bit's decimal value and recurse
+    return binary_to_decimal(binary_str, index + 1, total + bit * (2 ** power))
+
+
+# Generate 4 random bits
+binary_number = "".join(random.choice(["0", "1"]) for _ in range(4))
+
+result = binary_to_decimal(binary_number)
+
+print(f"Binary:  {binary_number}")
+print(f"Base 10: {result}")

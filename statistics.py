@@ -1,6 +1,8 @@
 from bs4 import BeautifulSoup
 from collections import Counter
 import statistics
+import psycopg2
+
 
 html = """<table>
 	
@@ -98,3 +100,37 @@ probability_red = red_count / total
 print(f"Q5 (Bonus) - Probability that a randomly chosen colour is RED:")
 print(f"     RED appears {red_count} times out of {total} total")
 print(f"     P(RED) = {red_count}/{total} = {probability_red:.4f} ({probability_red*100:.2f}%)")
+
+# Connect to PostgreSQL
+conn = psycopg2.connect(
+    host="localhost",
+    database="your_database",
+    user="your_username",
+    password="your_password",
+    port="5432"
+)
+
+cursor = conn.cursor()
+
+# Create table if it doesn't exist
+cursor.execute("""
+    CREATE TABLE IF NOT EXISTS colour_frequencies (
+        id        SERIAL PRIMARY KEY,
+        colour    VARCHAR(50) UNIQUE NOT NULL,
+        frequency INTEGER NOT NULL
+    )
+""")
+
+# Insert colours and frequencies
+for colour, count in colour_counts.items():
+    cursor.execute("""
+        INSERT INTO colour_frequencies (colour, frequency)
+        VALUES (%s, %s)
+        ON CONFLICT (colour) DO UPDATE
+            SET frequency = EXCLUDED.frequency
+    """, (colour, count))
+
+# Commit and close
+conn.commit()
+cursor.close()
+conn.close()
